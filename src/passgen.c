@@ -1,8 +1,5 @@
 /* -------------------------------------------------------------------------- */
 
-// TODO use mersenne twister for random number generation
-// https://github.com/ESultanik/mtwister
-
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
