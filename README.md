@@ -22,5 +22,18 @@ If no options are given, 30 passwords with 25 characters each are created from t
 | 3      | ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz                       |
 | 4      | ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789             |
 | 5      | ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!$=?+#,;.:-_ |
+### Example
+Use the generator from your command line like this.
+```
+$ passgen -l=15 -c=9 -a="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+alphabet length:           26
+password length:           15
+possible combinations:     1.677259e+21
+password entropy:          70.51
+time needed to guess:      2.659277e+01 millenia
+
+OFJHWKWHWVREJUC     FCEEQTJBXVSXSMH     YQXKIHUXBBFZCGP     BVWCZMXDAVMJSRE     VOOAHOHMYNJBHIA
+ZSMXJGRWYPYXWKI     RBXXQRICWCFBIOU     QJIGDRDHPWYSURS     OWWOHSCJHXVDVIQ
+```
 ## How it works
 The Mersenne Twister is initialized using the process id and system time and creates 800,000 random numbers before starting to create passwords. The passwords themselves are created by picking a random letter from the alphabet using the random numbers created by the Mersenne Twister.
