@@ -115,6 +115,7 @@ int main(int argc, char *argv[]) {
     int r = 0;
 
     double entropy = 0;
+    double guessTime = 0;
 
     /* initialize mersenne random number generator */
     /* generate 800,000 random numbers to make up for bad initialization */
@@ -136,9 +137,6 @@ int main(int argc, char *argv[]) {
 
         else if (strncmp(argv[i], "--alphabet=", 11) == 0)
             alphabet = argv[i] + 11;
-
-        else if (strncmp(argv[i], "-a=", 3) == 0)
-            alphabet = argv[i] + 3;
 
         else if (strncmp(argv[i], "-a=", 3) == 0)
             alphabet = argv[i] + 3;
@@ -195,11 +193,11 @@ int main(int argc, char *argv[]) {
 
     /* print parameters */
 
-    fprintf(stdout, "alphabet length:           %d\n", strlen(alphabet));
+    fprintf(stdout, "alphabet length:           %lu\n", strlen(alphabet));
 
     /* compute password entropy */
 
-    fprintf(stdout, "password length:           %ld\n", pwLength);
+    fprintf(stdout, "password length:           %d\n", pwLength);
 
     fprintf(stdout, "possible combinations:     %e\n",
             pow(strlen(alphabet), pwLength));
@@ -208,8 +206,33 @@ int main(int argc, char *argv[]) {
 
     fprintf(stdout, "password entropy:          %.2f\n", entropy);
 
-    fprintf(stdout, "time needed to guess:      %e years\n\n",
-            pow(2, entropy - 1) / (pow(10, 9) * 60 * 60 * 24 * 364));
+    /* compute time needed to guess */
+
+    guessTime = pow(2, entropy - 1) / pow(10, 9);
+
+    if (guessTime < 60)
+        fprintf(stdout, "time needed to guess:      %e seconds\n\n", guessTime);
+    else if (guessTime < 60 * 60)
+        fprintf(stdout, "time needed to guess:      %e minutes\n\n",
+                guessTime / 60);
+    else if (guessTime < 60 * 60 * 24)
+        fprintf(stdout, "time needed to guess:      %e hours\n\n",
+                guessTime / (60 * 60));
+    else if (guessTime < 60 * 60 * 24 * 365)
+        fprintf(stdout, "time needed to guess:      %e days\n\n",
+                guessTime / (60 * 60 * 24));
+    else if (guessTime < 60 * 60 * 24 * 365 * 10)
+        fprintf(stdout, "time needed to guess:      %e years\n\n",
+                guessTime / (60 * 60 * 24 * 365));
+    else if (guessTime < (unsigned long)60 * 60 * 24 * 365 * 10 * 10)
+        fprintf(stdout, "time needed to guess:      %e decades\n\n",
+                guessTime / ((unsigned long)60 * 60 * 24 * 365 * 10));
+    else if (guessTime < (unsigned long)60 * 60 * 24 * 365 * 10 * 10 * 10)
+        fprintf(stdout, "time needed to guess:      %e centuries\n\n",
+                guessTime / ((unsigned long)60 * 60 * 24 * 365 * 10 * 10));
+    else
+        fprintf(stdout, "time needed to guess:      %e millenia\n\n",
+                guessTime / ((unsigned long)60 * 60 * 24 * 365 * 10 * 10 * 10));
 
     /* generate and print password */
 
