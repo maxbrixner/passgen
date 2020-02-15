@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
+
 #include "mersenne.h"
 
 /* -------------------------------------------------------------------------- */
@@ -33,9 +34,6 @@ char *alphabet4 =
 char *alphabet5 =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!$=?+#,;.:-"
     "_";
-char *alphabet6 =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!\"§$&/"
-    "()=?{[]}\\*~+'#,;.:-_";
 
 /* -------------------------------------------------------------------------- */
 
@@ -87,8 +85,6 @@ void printHelp(FILE *stream) {
     fprintf(stream, "  4                Letters and numbers\n");
     fprintf(stream,
             "  5                Letters, numbers, common special characters\n");
-    fprintf(stream,
-            "  6                Letters, numbers, special characters\n\n");
 
     fprintf(stream, "Examples\n");
     fprintf(stream, "  $ passgen -l=10 -c=24 -a=\"abcdefg\"\n");
@@ -133,26 +129,18 @@ int main(int argc, char *argv[]) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
             printHelp(stdout);
             return 0;
-        }
-
-        else if (strncmp(argv[i], "--alphabet=", 11) == 0)
+        } else if (strncmp(argv[i], "--alphabet=", 11) == 0)
             alphabet = argv[i] + 11;
-
         else if (strncmp(argv[i], "-a=", 3) == 0)
             alphabet = argv[i] + 3;
-
         else if (strncmp(argv[i], "--length=", 9) == 0)
             pwLength = atoi(argv[i] + 9);
-
         else if (strncmp(argv[i], "-l=", 3) == 0)
             pwLength = atoi(argv[i] + 3);
-
         else if (strncmp(argv[i], "--count=", 8) == 0)
             pwCount = atoi(argv[i] + 8);
-
         else if (strncmp(argv[i], "-c=", 3) == 0)
             pwCount = atoi(argv[i] + 3);
-
         else {
             fprintf(stdout, "passgen: invalid arguments\n");
             fprintf(stdout, "Try 'passgen --help'.\n");
@@ -173,8 +161,6 @@ int main(int argc, char *argv[]) {
             alphabet = alphabet4;
         else if (strcmp(alphabet, "5") == 0)
             alphabet = alphabet5;
-        else if (strcmp(alphabet, "6") == 0)
-            alphabet = alphabet6;
         else {
             fprintf(stdout, "passgen: alphabet is too short\n");
             fprintf(stdout, "Try 'passgen --help'.\n");
