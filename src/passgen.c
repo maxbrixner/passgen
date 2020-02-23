@@ -55,6 +55,39 @@ int uniqueCharacters(char *str) {
 
 /* -------------------------------------------------------------------------- */
 
+unsigned long mix(unsigned long a, unsigned long b, unsigned long c) {
+    a = a - b;
+    a = a - c;
+    a = a ^ (c >> 13);
+    b = b - c;
+    b = b - a;
+    b = b ^ (a << 8);
+    c = c - a;
+    c = c - b;
+    c = c ^ (b >> 13);
+    a = a - b;
+    a = a - c;
+    a = a ^ (c >> 12);
+    b = b - c;
+    b = b - a;
+    b = b ^ (a << 16);
+    c = c - a;
+    c = c - b;
+    c = c ^ (b >> 5);
+    a = a - b;
+    a = a - c;
+    a = a ^ (c >> 3);
+    b = b - c;
+    b = b - a;
+    b = b ^ (a << 10);
+    c = c - a;
+    c = c - b;
+    c = c ^ (b >> 15);
+    return c;
+}
+
+/* -------------------------------------------------------------------------- */
+
 unsigned long randomNumber(unsigned long l, unsigned long u) {
     return (genrand_int32() % u + l);
 }
@@ -63,9 +96,7 @@ unsigned long randomNumber(unsigned long l, unsigned long u) {
 
 void printHelp(FILE *stream) {
     fprintf(stream, "Usage: passgen <options>\n\n");
-    fprintf(stream,
-            "A mersenne twister is used to achieve a good enough degree of "
-            "randomness\n\n");
+    fprintf(stream, "Generates random passwords using a Mersenne Twister.\n\n");
 
     fprintf(stream, "Options\n");
     fprintf(stream, "  --alphabet, -a    Set the alphabet. This can be any\n");
@@ -76,15 +107,19 @@ void printHelp(FILE *stream) {
     fprintf(stream, "                    Default is 25.\n");
     fprintf(stream,
             "  --count, -c       Set the number of passwords to create.\n");
-    fprintf(stream, "                    Default is 30.\n\n");
+    fprintf(stream, "                    Default is 30.\n");
+    fprintf(stream, "  --seed, -s        Mix in random seed.\n");
+    fprintf(stream,
+            "                    If left empty this is the system time.\n\n");
 
     fprintf(stream, "Default Alphabets\n");
     fprintf(stream, "  1                Lower case letters\n");
     fprintf(stream, "  2                Upper case letters\n");
     fprintf(stream, "  3                Lower and upper case letters\n");
     fprintf(stream, "  4                Letters and numbers\n");
-    fprintf(stream,
-            "  5                Letters, numbers, common special characters\n");
+    fprintf(
+        stream,
+        "  5                Letters, numbers, common special characters\n\n");
 
     fprintf(stream, "Examples\n");
     fprintf(stream, "  $ passgen -l=10 -c=24 -a=\"abcdefg\"\n");
@@ -92,7 +127,9 @@ void printHelp(FILE *stream) {
     fprintf(stream, "  given alphabet.\n\n");
     fprintf(stream, "  $ passgen -l=10 -c=24 -a=3\n");
     fprintf(stream, "  Generates 24 passwords of length 10 using the\n");
-    fprintf(stream, "  default alphabet no. 3.\n");
+    fprintf(stream, "  default alphabet no. 3.\n\n");
+    fprintf(stream, "  $ passgen -s=263127394\n");
+    fprintf(stream, "  Generates passwords mixing in the custom seed.\n");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -113,15 +150,7 @@ int main(int argc, char *argv[]) {
     double entropy = 0;
     double guessTime = 0;
 
-    /* initialize mersenne random number generator */
-    /* generate 800,000 random numbers to make up for bad initialization */
-
-    srand(time(0) * getpid());
-    init_genrand(rand());
-
-    for (k = 0; k < 800000; k++) {
-        randomNumber(0, 10);
-    }
+    unsigned long seed = time(NULL);
 
     /* command line arguments */
 
@@ -141,11 +170,28 @@ int main(int argc, char *argv[]) {
             pwCount = atoi(argv[i] + 8);
         else if (strncmp(argv[i], "-c=", 3) == 0)
             pwCount = atoi(argv[i] + 3);
+        else if (strncmp(argv[i], "--seed=", 7) == 0)
+            seed = strtoul(argv[i] + 7, NULL, 10);
+        else if (strncmp(argv[i], "-s=", 3) == 0)
+            seed = strtoul(argv[i] + 3, NULL, 10);
         else {
             fprintf(stdout, "passgen: invalid arguments\n");
             fprintf(stdout, "Try 'passgen --help'.\n");
             return ERR_ARGUMENT;
         }
+    }
+
+    seed = mix(clock(), seed, getpid());
+
+    /* initialize mersenne random number generator */
+
+    srand(seed);
+    init_genrand(rand());
+
+    /* generate 800,000 random numbers to make up for bad initialization */
+
+    for (k = 0; k < 800000; k++) {
+        randomNumber(0, 10);
     }
 
     /* choose standard alphabet */
@@ -179,11 +225,13 @@ int main(int argc, char *argv[]) {
 
     /* print parameters */
 
+    fprintf(stdout, "random seed:               %lu\n", seed);
+
     fprintf(stdout, "alphabet length:           %lu\n", strlen(alphabet));
 
-    /* compute password entropy */
-
     fprintf(stdout, "password length:           %d\n", pwLength);
+
+    /* compute password entropy */
 
     fprintf(stdout, "possible combinations:     %e\n",
             pow(strlen(alphabet), pwLength));

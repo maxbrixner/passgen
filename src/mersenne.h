@@ -9,6 +9,9 @@
 #define UPPER_MASK 0x80000000UL /* most significant w-r bits */
 #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
 
+static unsigned long mt[N];
+static int mti = N + 1;
+
 void init_genrand(unsigned long s);
 unsigned long genrand_int32(void);
 

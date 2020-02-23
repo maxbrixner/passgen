@@ -44,9 +44,6 @@
 
 /* -------------------------------------------------------------------------- */
 
-static unsigned long mt[N];
-static int mti = N + 1;
-
 void init_genrand(unsigned long s) {
     mt[0] = s & 0xffffffffUL;
     for (mti = 1; mti < N; mti++) {
